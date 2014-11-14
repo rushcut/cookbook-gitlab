@@ -8,7 +8,7 @@ version '6.9.0'
 
 %w(build-essential zlib readline ncurses git openssh redisio xml
    ruby_build certificate database logrotate mysql nginx
-   postgresql apt yum-epel).each do |cb_depend|
+   postgresql apt).each do |cb_depend|
   depends cb_depend
 end
 
