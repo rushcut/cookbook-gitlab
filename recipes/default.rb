@@ -88,8 +88,8 @@ template "#{node['gitlab']['home']}/.ssh/config" do
   group node['gitlab']['group']
   mode '0644'
   variables(
-      fqdn: node['fqdn'],
-      trust_local_sshkeys: node['gitlab']['trust_local_sshkeys']
+    fqdn: node['fqdn'],
+    trust_local_sshkeys: node['gitlab']['trust_local_sshkeys']
   )
 end
 
@@ -150,8 +150,8 @@ template node['gitlab']['shell']['home'] + '/config.yml' do
   mode '0644'
   source 'shell_config.yml.erb'
   variables(
-      fqdn: api_fqdn,
-      listen: listen_port
+    fqdn: api_fqdn,
+    listen: listen_port
   )
 end
 
@@ -167,15 +167,28 @@ end
 # Render gitlab init script
 # This needs to happen before gitlab.yml is rendered.
 # So when the service is subscribed, the init file will be in place
-template '/etc/init.d/gitlab' do
-  owner 'root'
-  group 'root'
-  mode '0755'
-  source 'gitlab.init.erb'
-  variables(
+if node['gitlab']['git_branch'][0] == "7"
+  template '/etc/init.d/gitlab' do
+    owner 'root'
+    group 'root'
+    mode '0755'
+    source 'gitlab7.init.erb'
+    variables(
       gitlab_app_home: node['gitlab']['app_home'],
       gitlab_user: node['gitlab']['user']
-  )
+    )
+  end
+else
+  template '/etc/init.d/gitlab' do
+    owner 'root'
+    group 'root'
+    mode '0755'
+    source 'gitlab.init.erb'
+    variables(
+      gitlab_app_home: node['gitlab']['app_home'],
+      gitlab_user: node['gitlab']['user']
+    )
+  end
 end
 
 # Write the database.yml
@@ -185,13 +198,13 @@ template "#{node['gitlab']['app_home']}/config/database.yml" do
   group node['gitlab']['group']
   mode '0644'
   variables(
-      adapter: node['gitlab']['database']['adapter'],
-      encoding: node['gitlab']['database']['encoding'],
-      host: node['gitlab']['database']['host'],
-      database: node['gitlab']['database']['database'],
-      pool: node['gitlab']['database']['pool'],
-      username: node['gitlab']['database']['username'],
-      password: node['gitlab']['database']['password']
+    adapter: node['gitlab']['database']['adapter'],
+    encoding: node['gitlab']['database']['encoding'],
+    host: node['gitlab']['database']['host'],
+    database: node['gitlab']['database']['database'],
+    pool: node['gitlab']['database']['pool'],
+    username: node['gitlab']['database']['username'],
+    password: node['gitlab']['database']['password']
   )
 end
 
@@ -201,12 +214,12 @@ template "#{node['gitlab']['app_home']}/config/gitlab.yml" do
   group node['gitlab']['group']
   mode '0644'
   variables(
-      fqdn: node['gitlab']['web_fqdn'] || node['fqdn'],
-      https_boolean: node['gitlab']['https'],
-      git_user: node['gitlab']['user'],
-      git_home: node['gitlab']['home'],
-      backup_path: node['gitlab']['backup_path'],
-      backup_keep_time: node['gitlab']['backup_keep_time']
+    fqdn: node['gitlab']['web_fqdn'] || node['fqdn'],
+    https_boolean: node['gitlab']['https'],
+    git_user: node['gitlab']['user'],
+    git_home: node['gitlab']['home'],
+    backup_path: node['gitlab']['backup_path'],
+    backup_keep_time: node['gitlab']['backup_keep_time']
   )
 end
 
@@ -232,7 +245,7 @@ end
 logrotate_app 'gitlab' do
   frequency 'weekly'
   path ["#{node['gitlab']['app_home']}/log/*.log",
-        "#{node['gitlab']['shell']['home']}/gitlab-shell.log"]
+    "#{node['gitlab']['shell']['home']}/gitlab-shell.log"]
   rotate 52
   options %w(compress delaycompress notifempty copytruncate)
 end
@@ -269,8 +282,8 @@ template "#{node['gitlab']['app_home']}/config/unicorn.rb" do
   group node['gitlab']['group']
   mode '0644'
   variables(
-      fqdn: node['fqdn'],
-      gitlab_app_home: node['gitlab']['app_home']
+    fqdn: node['fqdn'],
+    gitlab_app_home: node['gitlab']['app_home']
   )
 end
 
