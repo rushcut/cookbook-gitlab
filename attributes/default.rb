@@ -72,7 +72,7 @@ when 'debian'
 when 'rhel'
   default['gitlab']['packages'] = %w(
     libyaml-devel openssl-devel gdbm-devel libffi-devel
-    curl libcurl-devel libicu-devel wget python-docutils sudo
+    curl libcurl-devel libicu-devel wget python-docutils sudo cmake
   )
 else
   default['gitlab']['install_ruby'] = 'package'
